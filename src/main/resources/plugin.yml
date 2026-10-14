@@ -2,6 +2,7 @@ name: GlideLaunch
 version: '${project.version}'
 main: dev.glidelaunch.GlideLaunchPlugin
 api-version: '1.21'
+softdepend: [AuthMe]
 description: Safe aerial launch and custom glide for new and respawning players, with optional spawn grace.
 authors: [GlideLaunch]
 

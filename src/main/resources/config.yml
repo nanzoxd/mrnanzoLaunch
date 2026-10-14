@@ -16,6 +16,15 @@ spawn:
   min-radius: 300
   max-radius: 1500
 
+authme:
+  # If AuthMe is installed, the first-join launch, titles and grace start only AFTER the
+  # player has registered/logged in (they wait at spawn until then).
+  wait-for-login: true
+  # Extra delay after login so AuthMe's own teleport to spawn cannot override the launch.
+  delay-ticks-after-login: 20
+  # Stop waiting after this long (AuthMe normally kicks unauthenticated players earlier).
+  timeout-seconds: 600
+
 new-player:
   # Launch players on their very first join.
   enabled: true
@@ -60,15 +69,17 @@ glide:
   launch-boost-ticks: 20
 
 join-intro:
-  # Shown to every player after they join: first title, then the second one.
+  # Shown AFTER the first-join launch (player is already high up and gliding): title 1, then title 2.
   enabled: true
+  # true = only brand-new players. false = every join.
+  first-join-only: true
   # Convert the text to small caps (a-z -> unicode small capitals).
   small-caps: true
   delay-ticks: 20
   gap-ticks: 70
   stay-ticks: 50
   title:
-    text: "⚔︎ The Relique ⚔︎"
+    text: "\u2694 The Relique \u2694"
     colors: ["#00CCFF", "#8AE8FF", "#8AE8FF"]
   started:
     text: "Started !"
