@@ -1,0 +1,209 @@
+# ============================================================
+#  GlideLaunch configuration
+#  Almost everything here can be changed in-game: /glidelaunch
+#  GUI changes are written back to this file automatically.
+# ============================================================
+
+spawn:
+  # Set automatically by /setspawn or the Spawn Settings GUI.
+  # While 'configured' is false the world's own spawn point is used as the centre.
+  configured: false
+  world: "world"
+  x: 0.0
+  y: 64.0
+  z: 0.0
+  # Horizontal distance from the centre (blocks). Vertical height is NOT part of the radius.
+  min-radius: 300
+  max-radius: 1500
+
+new-player:
+  # Launch players on their very first join.
+  enabled: true
+
+post-death:
+  # Launch players who respawn without a usable bed / respawn anchor.
+  # Valid bed/anchor respawns are ALWAYS left untouched.
+  enabled: true
+  # What to do if a saved respawn point exists but cannot be used (bed destroyed/obstructed):
+  #   GLIDE   - treat as "no respawn point" and launch
+  #   VANILLA - leave the vanilla respawn alone
+  unusable-saved-respawn: GLIDE
+
+safe-search:
+  # Random candidates tried before giving up (each needs one chunk load, spread over time).
+  max-attempts: 12
+  # Blocks above the ground at the chosen landing zone where the glide starts.
+  launch-height: 110
+  # If no safe zone is found: CENTER_AIR (launch above spawn centre) or NO_LAUNCH.
+  fallback: CENTER_AIR
+
+glide:
+  # If true, automatic launches only happen for players with glidelaunch.use.
+  require-use-permission: false
+  # Action bar shown while gliding (MiniMessage). Two colours only: #FFB6C1 pink, #A7C7E7 blue.
+  actionbar:
+    enabled: true
+    text: "<#A7C7E7>Double <#FFB6C1>Shift <#A7C7E7>To Land"
+  # Cruise speed in blocks per tick (1.0 = 20 blocks/second).
+  horizontal-speed: 0.9
+  # Absolute speed cap reached when diving.
+  max-speed: 2.0
+  # Maximum vertical speed (up or down) in blocks per tick.
+  vertical-speed: 1.2
+  # Sink strength. Higher = steeper glide.
+  gravity: 0.04
+  # How quickly velocity follows your camera (0.01 - 1.0). Lower = floatier.
+  steering: 0.15
+  # Auto-end glide (using the landing mode) after this many seconds. 0 = unlimited.
+  duration-limit-seconds: 120
+  # Upward boost length when a glide starts from the ground (e.g. /glidetest).
+  launch-boost-ticks: 20
+
+join-intro:
+  # Shown to every player after they join: first title, then the second one.
+  enabled: true
+  # Convert the text to small caps (a-z -> unicode small capitals).
+  small-caps: true
+  delay-ticks: 20
+  gap-ticks: 70
+  stay-ticks: 50
+  title:
+    text: "⚔︎ The Relique ⚔︎"
+    colors: ["#00CCFF", "#8AE8FF", "#8AE8FF"]
+  started:
+    text: "Started !"
+    colors: ["#FFF0CC", "#E8C670", "#FFF0CC"]
+
+sounds:
+  # Master switch. Each event has a Minecraft sound key (e.g. entity.firework_rocket.launch),
+  # volume and pitch. Set a sound to "" to silence a single event.
+  enabled: true
+  intro-title:
+    sound: "block.enchantment_table.use"
+    volume: 1.0
+    pitch: 1.0
+  intro-started:
+    sound: "entity.player.levelup"
+    volume: 1.0
+    pitch: 1.2
+  first-join-beacon:
+    sound: "block.beacon.activate"
+    volume: 1.0
+    pitch: 1.0
+  first-join:
+    sound: "ui.toast.challenge_complete"
+    volume: 1.0
+    pitch: 1.0
+  glide-start:
+    sound: "entity.firework_rocket.launch"
+    volume: 1.0
+    pitch: 1.0
+  double-sneak:
+    sound: "item.armor.equip_elytra"
+    volume: 1.0
+    pitch: 1.0
+  countdown:
+    sound: "block.note_block.pling"
+    volume: 1.0
+    pitch: 1.0
+  # Played repeatedly while the player is falling after a glide.
+  falling:
+    sound: "item.elytra.flying"
+    volume: 0.5
+    pitch: 1.0
+    interval-ticks: 20
+  landing:
+    sound: "block.amethyst_block.chime"
+    volume: 1.0
+    pitch: 1.2
+
+particles:
+  enabled: true
+  # FIREWORK, FLAME, END_ROD, CLOUD, SMOKE, CRIT, ELECTRIC_SPARK, SOUL_FIRE_FLAME,
+  # HAPPY_VILLAGER, GLOW, SNOWFLAKE, WAX_ON
+  type: FIREWORK
+  # Emit every N ticks.
+  interval-ticks: 1
+  # Particles per emission (capped by performance.max-particles-per-emit).
+  count: 3
+  # Distance behind the player's back (keeps the view clear).
+  back-offset: 1.4
+
+landing:
+  # After a mid-air end (double-sneak, collision, limit) show a 3-2-1 title while falling.
+  countdown:
+    enabled: true
+    seconds: 3
+  double-sneak:
+    enabled: true
+    # Two sneak presses within this many milliseconds end the glide.
+    window-ms: 400
+  # SLOW_FALL or NORMAL_LANDING
+  mode: SLOW_FALL
+  slow-falling:
+    duration-seconds: 20
+    # Re-apply Slow Falling (only our own) until the player touches down.
+    refresh-until-landed: true
+  # Fall-damage immunity after glide ends (ms).
+  fall-protection-ms: 3000
+
+test:
+  # /glidetest is in place. /launch test teleports to a launch zone, then returns the tester.
+  return-after-landing: true
+  return-delay-seconds: 3
+
+grace:
+  # DISABLED by default. Enable via GUI > Grace Settings.
+  enabled: false
+  duration-minutes: 30
+  # NEW_PLAYERS, RETURNING_PLAYERS (existing players, once, at first login while enabled) or BOTH
+  grant-to: NEW_PLAYERS
+  # Grant a fresh grace period on respawn if none is active.
+  grant-after-death: false
+  display-remaining: true
+  effects:
+    saturation:
+      enabled: true
+      level: 1
+      # 0 = last for the whole grace period
+      duration-seconds: 0
+    resistance:
+      enabled: true
+      level: 2
+      duration-seconds: 0
+  pvp:
+    # Players under grace cannot be damaged by other players.
+    block-damage-to-protected: true
+    # Mutual protection: players under grace cannot damage other players.
+    block-attacks-by-protected: true
+    # If true, holders of glidelaunch.bypass.grace ignore both rules above.
+    bypass-permission-enabled: false
+
+performance:
+  max-particles-per-emit: 8
+  # How often pending data (grace timers) is flushed to disk.
+  autosave-interval-seconds: 30
+
+# MiniMessage formatting. Placeholders: <player> <time> <world> <x> <y> <z> <seconds>
+messages:
+  prefix: "<gradient:#00CCFF:#8AE8FF><bold>GlideLaunch</bold></gradient> <#8AE8FF>» <reset>"
+  no-permission: "<#FF0000>You don't have permission to do that."
+  player-only: "<#FF0000>This command can only be used by a player."
+  spawn-set: "<#2EFF2E>Spawn centre set to <white><world> <x>, <y>, <z></white>."
+  launch-started: "<#2EFF2E>Launching you toward a safe landing zone..."
+  launch-failed: "<#FF0000>No safe launch location could be found. Please try again."
+  launch-admin-ok: "<#2EFF2E>Launch started for <white><player></white>."
+  already-gliding: "<#FF0000><player> is already gliding or launching."
+  target-offline: "<#FF0000>That player is not online."
+  glide-start: "<#8AE8FF>Gliding! <gray>Look to steer, <white>double-tap sneak</white> to land."
+  glide-end: "<gray>Glide ended."
+  test-returning: "<gray>Test complete. Returning you in <white><seconds>s</white>."
+  test-returned: "<gray>Returned to your original location."
+  grace-granted: "<#2EFF2E>Spawn protection active for <white><time></white>."
+  grace-ended: "<#FAFA33>Your spawn protection has ended."
+  grace-removed: "<#FAFA33>Your spawn protection was removed."
+  grace-actionbar: "<#8AE8FF>Spawn protection: <white><time>"
+  pvp-victim-protected: "<#FF0000><player> is under spawn protection."
+  pvp-attacker-protected: "<#FF0000>You can't attack while under spawn protection."
+  config-reloaded: "<#2EFF2E>Configuration reloaded."
+  usage-launch: "<#FAFA33>Usage: /launch test [player]"

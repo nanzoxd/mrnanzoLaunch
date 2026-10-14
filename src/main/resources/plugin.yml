@@ -1,0 +1,37 @@
+name: GlideLaunch
+version: '${project.version}'
+main: dev.glidelaunch.GlideLaunchPlugin
+api-version: '1.21'
+description: Safe aerial launch and custom glide for new and respawning players, with optional spawn grace.
+authors: [GlideLaunch]
+
+commands:
+  glidelaunch:
+    description: Open the GlideLaunch admin GUI.
+    usage: /<command>
+    aliases: [glaunch, gl]
+    permission: glidelaunch.admin
+  setspawn:
+    description: Set the GlideLaunch spawn centre to your location.
+    usage: /<command>
+    permission: glidelaunch.admin
+  glidetest:
+    description: Start a test glide for yourself.
+    usage: /<command>
+    permission: glidelaunch.admin
+  launch:
+    description: Launch testing. /launch test [player]
+    usage: /<command> test [player]
+    aliases: [lauch]
+    permission: glidelaunch.admin
+
+permissions:
+  glidelaunch.admin:
+    description: Full plugin administration (GUI, spawn, glide/launch tests, player management).
+    default: op
+  glidelaunch.bypass.grace:
+    description: Bypass grace PvP restrictions (only if enabled in config).
+    default: false
+  glidelaunch.use:
+    description: Player-accessible glide features (auto glide, if require-use-permission is enabled).
+    default: true
