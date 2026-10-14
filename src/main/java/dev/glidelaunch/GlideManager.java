@@ -49,6 +49,8 @@ public final class GlideManager {
         s.velocity = p.getEyeLocation().getDirection().multiply(g.cruise());
         if (ground && s.velocity.getY() < 0.2) s.velocity.setY(0.2);
         sessions.put(id, s);
+        p.setGliding(true);
+        p.setVelocity(s.velocity.clone()); // initial push only; vanilla elytra physics take over
         if (test && returnTo != null) pendingReturn.put(id, returnTo); else pendingReturn.remove(id);
         p.setFallDistance(0f);
         plugin.playSound(p, "glide-start");
@@ -62,6 +64,7 @@ public final class GlideManager {
         GlideSession s = sessions.remove(id);
         if (s == null) return;
         if (sessions.isEmpty()) cancelTask();
+        if (p.isGliding()) p.setGliding(false);
         plugin.landing().onGlideEnded(p, s, reason);
         switch (reason) {
             case QUIT, WORLD_CHANGE, DEATH, DISABLE -> pendingReturn.remove(id);

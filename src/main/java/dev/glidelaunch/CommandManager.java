@@ -38,11 +38,9 @@ public final class CommandManager implements CommandExecutor, TabCompleter {
                         Placeholder.unparsed("z", String.valueOf(l.getBlockZ())));
             }
             case "glidetest" -> {
-                if (plugin.glide().isGliding(p.getUniqueId())) {
-                    plugin.messages().send(p, "already-gliding", Placeholder.unparsed("player", p.getName()));
-                } else {
-                    plugin.glide().start(p, true, null); // test session: no data is modified
-                }
+                // Same flow as a brand-new player: safe launch zone, sounds, intro titles, glide, landing.
+                // Test session: no data is modified and the tester is returned afterwards.
+                plugin.spawn().launch(p, true, p);
             }
             default -> { return false; }
         }

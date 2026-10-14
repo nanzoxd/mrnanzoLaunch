@@ -7,6 +7,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.entity.EntityToggleGlideEvent;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -57,9 +58,22 @@ public final class LandingManager implements Listener {
         }
     }
 
+    /** Keeps the elytra pose alive mid-air (the server would otherwise clear it: no elytra worn). */
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onToggleGlide(EntityToggleGlideEvent e) {
+        if (!(e.getEntity() instanceof Player p) || e.isGliding()) return;
+        GlideSession s = plugin.glide().get(p.getUniqueId());
+        if (s == null) return;
+        if (p.isInWater() || p.isInLava() || p.isInsideVehicle() || p.isDead()) return;
+        if (s.ticks > 10 && Util.grounded(p)) return; // touched down: let it end naturally
+        e.setCancelled(true);
+    }
+
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onDamage(EntityDamageEvent e) {
-        if (!(e.getEntity() instanceof Player p) || e.getCause() != EntityDamageEvent.DamageCause.FALL) return;
+        if (!(e.getEntity() instanceof Player p)) return;
+        if (e.getCause() != EntityDamageEvent.DamageCause.FALL
+                && e.getCause() != EntityDamageEvent.DamageCause.FLY_INTO_WALL) return;
         UUID id = p.getUniqueId();
         if (plugin.glide().isGliding(id)) { e.setCancelled(true); return; }
         Long until = protectUntil.get(id);
@@ -72,8 +86,10 @@ public final class LandingManager implements Listener {
         switch (r) {
             case DOUBLE_SNEAK, COLLISION, LIMIT, ADMIN, TELEPORT -> {
                 boolean slow = "SLOW_FALL".equalsIgnoreCase(plugin.getConfig().getString("landing.mode", "SLOW_FALL"));
-                begin(p, slow, slow ? protect : 0,
-                        plugin.getConfig().getBoolean("landing.countdown.enabled", true));
+                // The landing timer is only shown after the player double-sneaks.
+                boolean countdown = r == StopReason.DOUBLE_SNEAK
+                        && plugin.getConfig().getBoolean("landing.countdown.enabled", true);
+                begin(p, slow, slow ? protect : 0, countdown);
             }
             case GROUND, WATER, VEHICLE -> begin(p, false, protect, false);
             case QUIT, DISABLE -> safeLogout(p);
@@ -149,7 +165,10 @@ public final class LandingManager implements Listener {
         landing.remove(id);
         if (st.owns) removeOwned(p);
         if (st.countdown) p.clearTitle();
-        if (!p.isDead()) plugin.playSound(p, "landing");
+        if (!p.isDead()) {
+            plugin.playSound(p, "landing");
+            JoinIntro.landed(plugin, p);
+        }
         protectUntil.merge(id, System.currentTimeMillis() + 2000, Math::max);
         plugin.glide().onLandingFinished(p);
     }

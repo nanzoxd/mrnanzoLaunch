@@ -14,7 +14,8 @@ public final class Messages {
 
     public static Component parse(String text, TagResolver... r) { return MM.deserialize(text, r); }
 
-    private String prefix() { return plugin.getConfig().getString("messages.prefix", ""); }
+    /** Messages are sent without any plugin prefix. */
+    private String prefix() { return ""; }
 
     public void send(CommandSender to, String key, TagResolver... r) {
         String raw = plugin.getConfig().getString("messages." + key);

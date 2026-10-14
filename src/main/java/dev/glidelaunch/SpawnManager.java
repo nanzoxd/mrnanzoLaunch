@@ -113,8 +113,8 @@ public final class SpawnManager {
                 if (e2 != null || ok == null || !ok || !p.isOnline()) { fail(p, initiator, firstJoin); return; }
                 if (plugin.glide().start(p, test, test ? origin : null)) {
                     plugin.messages().send(p, "launch-started");
-                    if (firstJoin) {
-                        plugin.storage().removePending(id);
+                    if (firstJoin || test) {
+                        if (firstJoin) plugin.storage().removePending(id); // tests never touch stored data
                         plugin.playSound(p, "first-join");
                         plugin.playSound(p, "first-join-beacon");
                         // Titles come AFTER the player is already high up and gliding.
