@@ -17,7 +17,7 @@ commands:
     usage: /<command>
     permission: glidelaunch.admin
   glidetest:
-    description: Start a test glide for yourself.
+    description: Full new-player launch test (launch zone, sounds, titles, glide, landing) for yourself.
     usage: /<command>
     permission: glidelaunch.admin
   launch:

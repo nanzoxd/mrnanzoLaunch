@@ -53,6 +53,8 @@ glide:
   actionbar:
     enabled: true
     text: "<#A7C7E7>Double <#FFB6C1>Shift <#A7C7E7>To Land"
+  # NOTE: flight uses native elytra physics. Only horizontal-speed (initial push) and the
+  # duration limit still apply; max-speed, vertical-speed, gravity and steering are legacy.
   # Cruise speed in blocks per tick (1.0 = 20 blocks/second).
   horizontal-speed: 0.9
   # Absolute speed cap reached when diving.
@@ -63,8 +65,8 @@ glide:
   gravity: 0.04
   # How quickly velocity follows your camera (0.01 - 1.0). Lower = floatier.
   steering: 0.15
-  # Auto-end glide (using the landing mode) after this many seconds. 0 = unlimited.
-  duration-limit-seconds: 120
+  # Optional auto-end after this many seconds. 0 = unlimited (default: players are never force-landed).
+  duration-limit-seconds: 0
   # Upward boost length when a glide starts from the ground (e.g. /glidetest).
   launch-boost-ticks: 20
 
@@ -125,7 +127,7 @@ sounds:
     interval-ticks: 20
   landing:
     sound: "block.amethyst_block.chime"
-    volume: 1.0
+    volume: 0.3
     pitch: 1.2
 
 particles:
@@ -141,7 +143,13 @@ particles:
   back-offset: 1.4
 
 landing:
-  # After a mid-air end (double-sneak, collision, limit) show a 3-2-1 title while falling.
+  # "Successfully landed" title shown after touching down.
+  landed-title:
+    enabled: true
+    text: "Successfully Landed"
+    colors: ["#2EFF2E", "#B6FFB6", "#2EFF2E"]
+    stay-ticks: 50
+  # After a double-sneak show a 3-2-1 title while falling (never shown for other endings).
   countdown:
     enabled: true
     seconds: 3
@@ -197,7 +205,7 @@ performance:
 
 # MiniMessage formatting. Placeholders: <player> <time> <world> <x> <y> <z> <seconds>
 messages:
-  prefix: "<gradient:#00CCFF:#8AE8FF><bold>GlideLaunch</bold></gradient> <#8AE8FF>» <reset>"
+  prefix: ""
   no-permission: "<#FF0000>You don't have permission to do that."
   player-only: "<#FF0000>This command can only be used by a player."
   spawn-set: "<#2EFF2E>Spawn centre set to <white><world> <x>, <y>, <z></white>."
