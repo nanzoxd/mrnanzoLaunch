@@ -22,11 +22,25 @@ public final class RespawnListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onJoin(PlayerJoinEvent e) {
         Player p = e.getPlayer();
-        boolean first = !p.hasPlayedBefore();
+        if (!p.hasPlayedBefore()) plugin.storage().addPending(p.getUniqueId());
+        final boolean first = plugin.storage().isPending(p.getUniqueId());
+        // With AuthMe installed this waits until the player has logged in / registered.
+        plugin.auth().await(p, () -> afterJoin(p, first));
+    }
+
+    private void afterJoin(Player p, boolean first) {
         plugin.grace().onJoin(p, first);
-        JoinIntro.play(plugin, p);
-        if (first && plugin.getConfig().getBoolean("new-player.enabled", true) && plugin.spawn().canAutoGlide(p)) {
+        boolean launching = first && plugin.getConfig().getBoolean("new-player.enabled", true)
+                && plugin.spawn().canAutoGlide(p);
+        if (launching) {
+            // join-intro titles are triggered by SpawnManager once the glide has started
             plugin.spawn().scheduleAutoLaunch(p, 10L, true);
+            return;
+        }
+        if (first) plugin.storage().removePending(p.getUniqueId());
+        if (plugin.getConfig().getBoolean("join-intro.enabled", true)
+                && (first || !plugin.getConfig().getBoolean("join-intro.first-join-only", true))) {
+            JoinIntro.play(plugin, p);
         }
     }
 

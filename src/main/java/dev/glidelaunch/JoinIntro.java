@@ -28,6 +28,7 @@ final class JoinIntro {
         String base = "join-intro." + key + ".";
         String text = c.getString(base + "text", "");
         if (text == null || text.isBlank()) return;
+        text = text.replace("\uFE0E", "").replace("\uFE0F", ""); // variation selectors render as boxes
         if (c.getBoolean("join-intro.small-caps", true)) text = Hud.smallCaps(text);
         List<String> colors = c.getStringList(base + "colors");
         if (colors.isEmpty()) colors = List.of("#FFFFFF");

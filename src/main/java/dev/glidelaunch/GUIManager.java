@@ -262,6 +262,7 @@ public final class GUIManager {
         place(h, s, e("post-death.unusable-saved-respawn", Material.RED_BED, "Unusable Saved Respawn", "GLIDE: launch anyway. VANILLA: leave alone.", ConfigManager.UNUSABLE));
         place(h, s, n("safe-search.max-attempts", Material.SPYGLASS, "Safe Search Attempts", "Candidates tried before the fallback.", 1, 50, 1, ""));
         place(h, s, n("safe-search.launch-height", Material.LADDER, "Launch Height", "Blocks above the ground the glide starts.", 20, 300, 10, " blocks"));
+        place(h, s, b("authme.wait-for-login", Material.IRON_DOOR, "Wait For AuthMe Login", "New-player launch starts after login/register."));
         place(h, s, e("safe-search.fallback", Material.BARRIER, "Search Fallback", "If nothing safe is found.", ConfigManager.FALLBACKS));
         back(h, this::openMain);
     }

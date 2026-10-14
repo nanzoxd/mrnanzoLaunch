@@ -95,7 +95,7 @@ public final class SpawnManager {
 
     public void launch(Player p, boolean test, CommandSender initiator, boolean firstJoin) {
         UUID id = p.getUniqueId();
-        if (!p.isOnline() || p.getGameMode() == GameMode.SPECTATOR) { fail(p, initiator); return; }
+        if (!p.isOnline() || p.getGameMode() == GameMode.SPECTATOR) { fail(p, initiator, firstJoin); return; }
         if (plugin.glide().isGliding(id) || pending.contains(id)) {
             if (initiator != null) plugin.messages().send(initiator, "already-gliding",
                     Placeholder.unparsed("player", p.getName()));
@@ -104,16 +104,22 @@ public final class SpawnManager {
         pending.add(id);
         Location origin = p.getLocation().clone();
         findLaunchLocation().whenComplete((loc, err) -> plugin.sync(() -> {
-            if (err != null || loc == null || !p.isOnline()) { pending.remove(id); fail(p, initiator); return; }
+            if (err != null || loc == null || !p.isOnline()) { pending.remove(id); fail(p, initiator, firstJoin); return; }
             if (p.isInsideVehicle()) p.leaveVehicle();
             loc.setYaw(p.getLocation().getYaw());
             loc.setPitch(12f);
             p.teleportAsync(loc, TeleportCause.PLUGIN).whenComplete((ok, e2) -> plugin.sync(() -> {
                 pending.remove(id);
-                if (e2 != null || ok == null || !ok || !p.isOnline()) { fail(p, initiator); return; }
+                if (e2 != null || ok == null || !ok || !p.isOnline()) { fail(p, initiator, firstJoin); return; }
                 if (plugin.glide().start(p, test, test ? origin : null)) {
                     plugin.messages().send(p, "launch-started");
-                    if (firstJoin) { plugin.playSound(p, "first-join"); plugin.playSound(p, "first-join-beacon"); }
+                    if (firstJoin) {
+                        plugin.storage().removePending(id);
+                        plugin.playSound(p, "first-join");
+                        plugin.playSound(p, "first-join-beacon");
+                        // Titles come AFTER the player is already high up and gliding.
+                        if (plugin.getConfig().getBoolean("join-intro.enabled", true)) JoinIntro.play(plugin, p);
+                    }
                     if (initiator != null && initiator != p) plugin.messages().send(initiator, "launch-admin-ok",
                             Placeholder.unparsed("player", p.getName()));
                 }
@@ -121,7 +127,9 @@ public final class SpawnManager {
         }));
     }
 
-    private void fail(Player p, CommandSender initiator) {
+    private void fail(Player p, CommandSender initiator, boolean firstJoin) {
+        if (firstJoin) plugin.storage().removePending(p.getUniqueId());
+        if (firstJoin && p.isOnline() && plugin.getConfig().getBoolean("join-intro.enabled", true)) JoinIntro.play(plugin, p);
         if (p.isOnline()) plugin.messages().send(p, "launch-failed");
         if (initiator != null && initiator != p) plugin.messages().send(initiator, "launch-failed");
     }
@@ -146,7 +154,8 @@ public final class SpawnManager {
         double ang = r.nextDouble(0, Math.PI * 2);
         int x = (int) Math.floor(c[0] + Math.cos(ang) * dist);
         int z = (int) Math.floor(c[1] + Math.sin(ang) * dist);
-        w.getChunkAtAsync(x >> 4, z >> 4, true).whenComplete((chunk, err) -> plugin.sync(() -> {
+        w.getChunkAtAsync(x >> 4, z >> 4, true)
+                .orTimeout(8, java.util.concurrent.TimeUnit.SECONDS).whenComplete((chunk, err) -> plugin.sync(() -> {
             Location l = (err == null && chunk != null) ? evaluate(w, x, z) : null;
             if (l != null) result.complete(l); else attempt(w, n + 1, result);
         }));
@@ -159,7 +168,8 @@ public final class SpawnManager {
         }
         double[] c = centre(w);
         int x = (int) Math.floor(c[0]), z = (int) Math.floor(c[1]);
-        w.getChunkAtAsync(x >> 4, z >> 4, true).whenComplete((chunk, err) -> plugin.sync(() -> {
+        w.getChunkAtAsync(x >> 4, z >> 4, true)
+                .orTimeout(8, java.util.concurrent.TimeUnit.SECONDS).whenComplete((chunk, err) -> plugin.sync(() -> {
             if (err != null || chunk == null) { result.complete(null); return; }
             int y = w.getHighestBlockYAt(x, z, HeightMap.MOTION_BLOCKING);
             int h = plugin.getConfig().getInt("safe-search.launch-height", 110);

@@ -17,6 +17,7 @@ public final class GlideLaunchPlugin extends JavaPlugin {
     private GraceStorage graceStorage;
     private GraceManager grace;
     private GUIManager gui;
+    private AuthGate auth;
 
     @Override
     public void onEnable() {
@@ -31,6 +32,7 @@ public final class GlideLaunchPlugin extends JavaPlugin {
         graceStorage.load();
         grace = new GraceManager(this, graceStorage);
         gui = new GUIManager(this);
+        auth = new AuthGate(this);
 
         Bukkit.getPluginManager().registerEvents(landing, this);
         Bukkit.getPluginManager().registerEvents(new RespawnListener(this), this);
@@ -52,6 +54,7 @@ public final class GlideLaunchPlugin extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        if (auth != null) auth.shutdown();
         if (glide != null) glide.shutdown();
         if (landing != null) landing.shutdown();
         if (grace != null) grace.shutdown();
@@ -91,4 +94,6 @@ public final class GlideLaunchPlugin extends JavaPlugin {
     public LandingManager landing() { return landing; }
     public GraceManager grace() { return grace; }
     public GUIManager gui() { return gui; }
+    public AuthGate auth() { return auth; }
+    public GraceStorage storage() { return graceStorage; }
 }

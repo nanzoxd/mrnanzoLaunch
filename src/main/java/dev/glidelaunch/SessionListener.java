@@ -19,6 +19,7 @@ public final class SessionListener implements Listener {
     @EventHandler
     public void onQuit(PlayerQuitEvent e) {
         Player p = e.getPlayer();
+        plugin.auth().remove(p.getUniqueId());
         plugin.glide().stop(p, StopReason.QUIT);
         plugin.landing().cleanup(p);
         plugin.grace().onQuit(p);

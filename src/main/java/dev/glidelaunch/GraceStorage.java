@@ -10,7 +10,9 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -19,6 +21,7 @@ public final class GraceStorage {
     private final GlideLaunchPlugin plugin;
     private final File file;
     private final Map<UUID, Long> data = new HashMap<>();
+    private final java.util.Set<UUID> pendingFirst = new java.util.HashSet<>();
     private boolean dirty;
 
     public GraceStorage(GlideLaunchPlugin plugin) {
@@ -28,8 +31,12 @@ public final class GraceStorage {
 
     public void load() {
         data.clear();
+        pendingFirst.clear();
         if (!file.exists()) return;
         YamlConfiguration y = YamlConfiguration.loadConfiguration(file);
+        for (String k : y.getStringList("pending-first")) {
+            try { pendingFirst.add(UUID.fromString(k)); } catch (IllegalArgumentException ignored) { }
+        }
         ConfigurationSection s = y.getConfigurationSection("grace");
         if (s == null) return;
         for (String k : s.getKeys(false)) {
@@ -37,6 +44,11 @@ public final class GraceStorage {
             catch (IllegalArgumentException ex) { plugin.getLogger().warning("Ignoring invalid UUID in grace-data.yml: " + k); }
         }
     }
+
+    /** Players who joined for the first time but have not been launched yet (e.g. still at the AuthMe login). */
+    public boolean isPending(UUID id) { return pendingFirst.contains(id); }
+    public void addPending(UUID id) { if (pendingFirst.add(id)) dirty = true; }
+    public void removePending(UUID id) { if (pendingFirst.remove(id)) dirty = true; }
 
     public Long get(UUID id) { return data.get(id); }
 
@@ -50,6 +62,9 @@ public final class GraceStorage {
         dirty = false;
         YamlConfiguration y = new YamlConfiguration();
         for (Map.Entry<UUID, Long> e : data.entrySet()) y.set("grace." + e.getKey(), e.getValue());
+        List<String> pend = new ArrayList<>();
+        for (UUID u : pendingFirst) pend.add(u.toString());
+        y.set("pending-first", pend);
         String text = y.saveToString();
         if (async && plugin.isEnabled()) Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> write(text));
         else write(text);
