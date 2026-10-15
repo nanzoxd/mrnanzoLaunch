@@ -29,7 +29,7 @@ final class Hud {
     /** Multi-stop gradient text component. */
     static Component gradient(String text, java.util.List<String> colors) {
         String stops = String.join(":", colors);
-        return MM.deserialize("<bold><gradient:" + stops + ">" + text + "</gradient></bold>");
+        return MM.deserialize("<gradient:" + stops + ">" + text + "</gradient>");
     }
 
     static void bigTitle(Player p, Component main, int stayTicks) {
@@ -41,7 +41,7 @@ final class Hud {
     static void countdown(Player p, int n, int total) {
         String color = n <= 1 ? "#2EFF2E" : (n == 2 ? "#FAFA33" : "#FF0000");
         Title t = Title.title(
-                MM.deserialize("<bold><" + color + ">" + n),
+                MM.deserialize("<" + color + ">" + n),
                 MM.deserialize("<#8AE8FF>Prepare to land"),
                 Title.Times.times(Duration.ZERO, Duration.ofMillis(900), Duration.ofMillis(100)));
         p.showTitle(t);

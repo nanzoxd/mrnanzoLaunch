@@ -73,11 +73,11 @@ public final class GlideLaunchPlugin extends JavaPlugin {
     public void playSound(org.bukkit.entity.Player p, String key, float pitchMul) {
         org.bukkit.configuration.file.FileConfiguration c = getConfig();
         if (!c.getBoolean("sounds.enabled", true)) return;
-        String s = c.getString("sounds." + key + ".sound", "");
+        String s = c.getString("sounds." + key + ".sound");
         if (s == null || s.isBlank()) return;
         p.getWorld().playSound(p.getLocation(), s,
-                (float) c.getDouble("sounds." + key + ".volume", 1.0),
-                (float) c.getDouble("sounds." + key + ".pitch", 1.0) * pitchMul);
+                (float) c.getDouble("sounds." + key + ".volume"),
+                (float) c.getDouble("sounds." + key + ".pitch") * pitchMul);
     }
 
     public void reloadAll() {

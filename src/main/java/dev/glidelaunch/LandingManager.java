@@ -160,9 +160,17 @@ public final class LandingManager implements Listener {
         if (landing.isEmpty()) { task.cancel(); task = null; }
     }
 
+    /** Stops the looping falling/elytra sound so it cannot keep playing after touchdown. */
+    private void stopFalling(Player p) {
+        String s = plugin.getConfig().getString("sounds.falling.sound");
+        if (s != null && !s.isBlank()) p.stopSound(s);
+        p.stopSound("item.elytra.flying");
+    }
+
     private void finish(Player p, State st) {
         UUID id = p.getUniqueId();
         landing.remove(id);
+        stopFalling(p);
         if (st.owns) removeOwned(p);
         if (st.countdown) p.clearTitle();
         if (!p.isDead()) {
@@ -181,6 +189,7 @@ public final class LandingManager implements Listener {
     /** Abort landing tracking (new glide, death). Removes our own Slow Falling only. */
     public void cancel(Player p) {
         State st = landing.remove(p.getUniqueId());
+        if (st != null) stopFalling(p);
         if (st != null && st.owns) removeOwned(p);
         protectUntil.remove(p.getUniqueId());
     }
