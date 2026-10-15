@@ -125,6 +125,11 @@ sounds:
     volume: 0.5
     pitch: 1.0
     interval-ticks: 20
+  # Plays together with the "Successfully Landed" title.
+  landed-title:
+    sound: "entity.firework_rocket.twinkle"
+    volume: 1.0
+    pitch: 1.0
   landing:
     sound: "block.amethyst_block.chime"
     volume: 0.3
